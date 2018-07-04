@@ -68,4 +68,5 @@ void send_ACK_msg(list<unsigned> &window_list) {
     n = sendto(sock, "Got your message\n", HEADER_SIZE, 0, (struct sockaddr *)& from, fromlen);
     if (n  < 0)
         error("sendto");
+    // TODO terminar esto
 }
