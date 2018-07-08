@@ -5,11 +5,14 @@
 #include "TCP_Header.h"
 
 TCP_Header::TCP_Header(char* str) {
-
+// TODO llenar metodo
 }
 
 TCP_Header::TCP_Header(unsigned seq, unsigned ACK, unsigned short wd, bool isACK) {
-
+    this->ack = ACK;
+    this->isACK = isACK;
+    this->sequence = seq;
+    this->window = wd;
 }
 
 unsigned int TCP_Header::getSequence() const {
@@ -30,6 +33,7 @@ bool TCP_Header::IsACK() const {
 
 char *TCP_Header::header_to_Array() {
     return nullptr;
+    // TODO llenar metodo
 }
 
 
