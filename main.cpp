@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
+#include <time.h>
 #include <string.h>
 #include "TCP_Header.h"
 
@@ -82,6 +83,8 @@ void error(const char *msg)
  * each 5 seconds.
  */
 void send_ACK_msg(list<unsigned> &window_list) {
+    srand (static_cast<unsigned int>(time(nullptr)));
+    int randNumber;
     while (true) {
         this_thread::sleep_for(chrono::seconds(ACK_RESPONSE_TIME)); // Wait 5 seconds
         my_mutex.lock();
@@ -128,13 +131,15 @@ void send_ACK_msg(list<unsigned> &window_list) {
         }
         my_mutex.unlock();
 
-
-        TCP_Header ack_header(0, ack_Number, window, true);
-        char *message = ack_header.header_to_Array();
-        n = sendto(sock, message, HEADER_SIZE, 0, (struct sockaddr *) &from, fromlen);
-        if (n < 0)
-            error("sendto");
-        delete[] message;
+        randNumber = rand()%10;
+        if (randNumber < 8) {
+            TCP_Header ack_header(0, ack_Number, window, true);
+            char *message = ack_header.header_to_Array();
+            n = sendto(sock, message, HEADER_SIZE, 0, (struct sockaddr *) &from, fromlen);
+            if (n < 0)
+                error("sendto");
+            delete[] message;
+        }
     }
 }
 
