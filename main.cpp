@@ -101,6 +101,7 @@ void send_ACK_msg(list<unsigned> &window_list) {
                 }
             }
         }
+        initial_sequence = ack_Number;
 
         /**
          * Reduce the size of the window if received very few messages or
@@ -120,7 +121,7 @@ void send_ACK_msg(list<unsigned> &window_list) {
         it = window_list.begin();
         while (!erased_all){
             if (!window_list.empty() && ((*it) < ack_Number)){
-                window_list.erase(it);
+                window_list.erase(it++);
             } else{
                 erased_all = true;
             }

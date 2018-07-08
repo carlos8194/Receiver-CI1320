@@ -54,17 +54,17 @@ char *TCP_Header::header_to_Array() {
 
 unsigned short TCP_Header::charArrayToShort(const char *str) {
     unsigned short val = 0;
-    val += (unsigned short) str[0];
-    val += ((unsigned short) str[1]) << 8; // *256
+    val += ( unsigned char) str[0];
+    val += ((unsigned char) str[1]) << 8; // *256
     return val;
 }
 
 unsigned TCP_Header::charArrayToUnsigned(const char *str) {
     unsigned val = 0;
-    val += (unsigned) str[0];
-    val += ((unsigned) str[1]) << 8;  // *256
-    val += ((unsigned) str[2]) << 16; // *256^2
-    val += ((unsigned) str[3]) << 24; // *256^3
+    val += ( unsigned char) str[0];
+    val += ((unsigned char) str[1]) << 8;  // *256
+    val += ((unsigned char) str[2]) << 16; // *256^2
+    val += ((unsigned char) str[3]) << 24; // *256^3
     return val;
 }
 
