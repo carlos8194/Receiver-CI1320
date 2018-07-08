@@ -9,7 +9,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
 #include "TCP_Header.h"
 
