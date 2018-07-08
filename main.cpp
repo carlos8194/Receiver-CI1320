@@ -21,7 +21,6 @@
 #define ACK_RESPONSE_TIME   5
 #define PACKET_SIZE         1
 
-
 using namespace std;
 
 void error(const char *);

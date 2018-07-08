@@ -25,5 +25,4 @@ private:
     bool isACK;
 };
 
-
 #endif //RECEIVER_TCP_HEADER_H
