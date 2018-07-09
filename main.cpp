@@ -57,6 +57,7 @@ int main(int argc, char *argv[]) {
             error("recvfrom");
         TCP_Header tcp_header(buf);
         unsigned sequence_number = tcp_header.getSequence();
+        cout << "Received a message. Sequence: " << sequence_number << endl;
 
         my_mutex.lock();
         // If the message has already been received then it is discarded.
@@ -104,6 +105,7 @@ void send_ACK_msg(list<unsigned> &window_list) {
             }
         }
         initial_sequence = ack_Number;
+        cout << "Next sequence number to request: " << ack_Number << endl;
 
         /**
          * Reduce the size of the window if received very few messages or
@@ -111,8 +113,10 @@ void send_ACK_msg(list<unsigned> &window_list) {
          */
         if (window_list.size() < (window/2)){
             window /= 2;
+            cout << "Reducing the window to half. Window: " << window << endl;
         } else if (window < MAX_WINDOW_SIZE){
             window++;
+            cout << "Increasing window by one. Window: " << window << endl;
         }
 
         /**
@@ -138,6 +142,7 @@ void send_ACK_msg(list<unsigned> &window_list) {
             if (n < 0)
                 error("sendto");
             delete[] message;
+            cout << "Sending ACK. ACK num: " << ack_Number << endl;
         }
     }
 }
