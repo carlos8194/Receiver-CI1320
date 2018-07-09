@@ -21,6 +21,7 @@
 using namespace std;
 
 void error(const char *);
+void printWindow(list<unsigned>&);
 void send_ACK_msg(list<unsigned>&);
 bool contains(const list<unsigned>&, unsigned);
 
@@ -106,6 +107,7 @@ void send_ACK_msg(list<unsigned> &window_list) {
             }
         }
         initial_sequence = ack_Number;
+        printWindow(window_list);
         cout << "Next sequence number to request: " << ack_Number << endl;
 
         /**
@@ -157,4 +159,14 @@ void send_ACK_msg(list<unsigned> &window_list) {
 bool contains(const list<unsigned > &list, unsigned x)
 {
     return std::find(list.begin(), list.end(), x) != list.end();
+}
+
+void printWindow(list<unsigned> &window_list){
+    auto iterator = window_list.begin();
+    cout << "Window: ";
+    while (iterator != window_list.end()){
+        cout << *iterator << "  ";
+        iterator++;
+    }
+    cout << endl;
 }
