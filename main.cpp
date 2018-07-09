@@ -16,6 +16,7 @@
 #define MAX_WINDOW_SIZE     10
 #define ACK_RESPONSE_TIME   5
 #define PACKET_SIZE         1
+#define LOSS_PACKET_PROB    0.2
 
 using namespace std;
 
@@ -135,7 +136,7 @@ void send_ACK_msg(list<unsigned> &window_list) {
         my_mutex.unlock();
 
         randNumber = rand()%10;
-        if (randNumber < 8) {
+        if (randNumber < (1- LOSS_PACKET_PROB)*10) {
             TCP_Header ack_header(0, ack_Number, window, true);
             char *message = ack_header.header_to_Array();
             n = sendto(sock, message, HEADER_SIZE, 0, (struct sockaddr *) &from, fromlen);
