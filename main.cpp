@@ -3,6 +3,7 @@
 #include <thread>
 #include <mutex>
 #include <algorithm>
+#include <condition_variable>
 
 /* UDP client in the internet domain */
 #include <sys/socket.h>
@@ -31,13 +32,17 @@ int sock;
 size_t length;
 ssize_t n;
 socklen_t fromlen;
-mutex my_mutex;
+mutex window_lock;
+mutex wait_lock;
+condition_variable condition_var;
+unsigned packetCounter = 0;
 struct sockaddr_in server;
 struct sockaddr_in from;
 
 int main(int argc, char *argv[]) {
     char buf[HEADER_SIZE];
     list<unsigned> window_list;
+    thread replier(send_ACK_msg, ref(window_list));
     sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0)
         error("Opening socket");
@@ -52,21 +57,24 @@ int main(int argc, char *argv[]) {
         error("binding");
     fromlen = sizeof(struct sockaddr_in);
 
-    thread replier(send_ACK_msg, ref(window_list));
     while (true) {
         n = recvfrom(sock, buf, HEADER_SIZE, 0, (struct sockaddr *)& from, &fromlen);
         if (n < 0)
             error("recvfrom");
+        if (packetCounter == 0){
+            condition_var.notify_one();
+        }
         TCP_Header tcp_header(buf);
         unsigned sequence_number = tcp_header.getSequence();
         cout << "Received a message. Sequence: " << sequence_number << endl;
 
-        my_mutex.lock();
+        window_lock.lock();
+        packetCounter++;
         // If the message has already been received then it is discarded.
         if (!contains(window_list, sequence_number)) {
             window_list.push_back(sequence_number);
         }
-        my_mutex.unlock();
+        window_lock.unlock();
     }
 }
 
@@ -85,11 +93,14 @@ void error(const char *msg)
  * each 5 seconds.
  */
 void send_ACK_msg(list<unsigned> &window_list) {
+    // Lock to wait for a condition
+    unique_lock<mutex> my_lock(wait_lock);
     srand (static_cast<unsigned int>(time(nullptr)));
     int randNumber;
     while (true) {
+        condition_var.wait(my_lock);
         this_thread::sleep_for(chrono::seconds(ACK_RESPONSE_TIME)); // Wait 5 seconds
-        my_mutex.lock();
+        window_lock.lock();
         /**
          * Get the next ACK_NUMBER to request.
          */
@@ -114,7 +125,7 @@ void send_ACK_msg(list<unsigned> &window_list) {
          * Reduce the size of the window if received very few messages or
          * increase it otherwise.
          */
-        if (window_list.size() < (window/2)){
+        if (window_list.size() < (2*window/3)){
             window /= 2;
             cout << "Reducing the window to half. Window: " << window << endl;
         } else if (window < MAX_WINDOW_SIZE){
@@ -135,7 +146,8 @@ void send_ACK_msg(list<unsigned> &window_list) {
                 erased_all = true;
             }
         }
-        my_mutex.unlock();
+        packetCounter = 0;
+        window_lock.unlock();
 
         randNumber = rand()%10;
         if (randNumber < (1- LOSS_PACKET_PROB)*10) {
